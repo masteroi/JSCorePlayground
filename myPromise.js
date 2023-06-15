@@ -1,7 +1,6 @@
 /**
  * Global param for state. to retrieve the status.
  */
-
 const STATE = {
   PENDING: 'pending',
   FULFILLED: 'fulfilled',
