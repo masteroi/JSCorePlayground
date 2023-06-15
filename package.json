@@ -1,0 +1,14 @@
+{
+  "name": "mypromiseclass",
+  "version": "1.0.0",
+  "description": "Just an implementation of Promise class",
+  "main": "myPromise.js",
+  "scripts": {
+    "test": "jest --watchAll --noStackTrace"
+  },
+  "author": "Roi Sadika",
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.5.0"
+  }
+}
