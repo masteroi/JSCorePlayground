@@ -23,7 +23,7 @@ class myPromise {
 
   constructor(callback) {
     try {
-      callback(this.#onSuccess, this.#onFail);
+      callback(this.#onSuccessBind, this.#onFailBind);
     } catch (error) {
       this.#onFail(error);
     }
@@ -48,19 +48,37 @@ class myPromise {
   }
 
   #onSuccess(value) {
-    if (this.#state !== STATE.PENDING) return;
+    queueMicrotask(() => {
+      if (this.#state !== STATE.PENDING) return;
 
-    this.#value = value;
-    this.#state = STATE.FULFILLED;
-    this.#runCallbacks();
+      if (value instanceof myPromise) {
+        value.then(this.#onSuccessBind, this.#onFailBind);
+        return;
+      }
+
+      this.#value = value;
+      this.#state = STATE.FULFILLED;
+      this.#runCallbacks();
+    });
   }
 
   #onFail(value) {
-    if (this.#state !== STATE.PENDING) return;
+    queueMicrotask(() => {
+      if (this.#state !== STATE.PENDING) return;
 
-    this.#value = value;
-    this.#state = STATE.REJECTED;
-    this.#runCallbacks();
+      if (value instanceof myPromise) {
+        value.then(this.#onSuccessBind, this.#onFailBind);
+        return;
+      }
+
+      if (this.#catchCallbacks.length === 0) {
+        throw new UncaughtPromiseError(value);
+      }
+
+      this.#value = value;
+      this.#state = STATE.REJECTED;
+      this.#runCallbacks();
+    });
   }
 
   /**
@@ -106,7 +124,7 @@ class myPromise {
    * @param {function} callback - The callback function to be executed on rejection.
    */
   catch(callback) {
-    this.then(undefined, callback);
+    return this.then(undefined, callback);
     // this.#catchCallbacks.push(callback);
     // this.#runCallbacks();
   }
@@ -126,6 +144,14 @@ class myPromise {
         throw result;
       }
     );
+  }
+}
+
+class UncaughtPromiseError extends Error {
+  constructor(error) {
+    super(error);
+
+    this.stack = `(in mypromise) ${error.stack}`
   }
 }
 
