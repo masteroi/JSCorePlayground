@@ -125,8 +125,6 @@ class myPromise {
    */
   catch(callback) {
     return this.then(undefined, callback);
-    // this.#catchCallbacks.push(callback);
-    // this.#runCallbacks();
   }
 
   /**
@@ -144,6 +142,22 @@ class myPromise {
         throw result;
       }
     );
+  }
+
+  /**
+   * static methods
+   */
+
+  static resolve(value) {
+    return new Promise((resolve) => {
+      resolve(value);
+    });
+  }
+
+  static reject(value) {
+    return new Promise((resolve, reject) => {
+      reject(value);
+    });
   }
 }
 
