@@ -159,6 +159,45 @@ class myPromise {
       reject(value);
     });
   }
+
+  static all(mypromises) {
+    const successful = [];
+    let resolved = 0;
+
+    return new myPromise((resolve, reject) => {
+      mypromises.forEach((promise, index) => {
+        promise.then(result => {
+          successful[index] = result;
+          resolved += 1;
+
+          if (resolved === mypromises.length) {
+            resolve(successful);
+          }
+        }).catch(reject);
+      });
+    });
+  }
+
+  static allSettled(mypromises) {
+    const results = [];
+    let resolved = 0;
+
+    return new myPromise(resolve => {
+      mypromises.forEach((promise, index) => {
+        promise
+          .then(value => {
+            results[index] = { status: STATE.FULFILLED, value }
+          }).catch(reason => {
+            results[index] = { status: STATE.REJECTED, reason }
+          }).finally(() => {
+            resolved++;
+            if (resolved === mypromises.length) {
+              resolve(results);
+            }
+          });
+      });
+    });
+  }
 }
 
 class UncaughtPromiseError extends Error {
