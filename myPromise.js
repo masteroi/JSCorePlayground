@@ -198,6 +198,33 @@ class myPromise {
       });
     });
   }
+
+  static race(mypromises) {
+    return new myPromise((resolve, reject) => {
+      mypromises.forEach((promise) => {
+        promise.then(resolve).catch(reject);
+      })
+    })
+  }
+
+  static any(mypromises) {
+    const failures = [];
+    let failed = 0;
+
+    return new myPromise((resolve, reject) => {
+      mypromises.forEach((promise, index) => {
+        promise.then(result => {
+          resolve(result);
+        }).catch(error => {
+          failures[index] = error;
+          failed += 1;
+          if (failed === mypromises.length) {
+            reject(failures);
+          }
+        });
+      });
+    });
+  }
 }
 
 class UncaughtPromiseError extends Error {
